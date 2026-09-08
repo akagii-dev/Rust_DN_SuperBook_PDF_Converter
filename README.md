@@ -324,7 +324,7 @@ superbook-pdf serve --port 8080 --bind 0.0.0.0
 | メモリ不足 | `--max-pages 10` か `--chunk-size 5` で分割処理 |
 | 傾き補正で画像が崩れる | `--no-deskew` で無効化 |
 | マージンで文字が切れる | `--margin-safety 1.0` で安全バッファを増加 |
-
+| realesrganが動かない | ai_bridge/.venv/lib/python3.12/site-packages/basicsr/data/degradations.pyの`from torchvision.transforms.functional_tensor import rgb_to_grayscale`　を`from torchvision.transforms.functional import rgb_to_grayscale`に変更 | 
 ---
 
 ## ライセンス
