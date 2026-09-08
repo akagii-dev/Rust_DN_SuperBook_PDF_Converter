@@ -1227,6 +1227,9 @@ impl PdfPipeline {
         images: &[PathBuf],
         progress: &P,
     ) -> Result<Vec<PathBuf>, PipelineError> {
+        eprintln!("=== STEP UPSCALE ENTERED ===");
+        eprintln!("upscale config = {}", self.config.upscale);
+        eprintln!("gpu config = {}", self.config.gpu);
         progress.on_step_start("AI Upscaling (RealESRGAN)...");
         let upscaled_dir = work_dir.join("upscaled");
         std::fs::create_dir_all(&upscaled_dir)?;
@@ -1668,8 +1671,8 @@ impl PdfPipeline {
                             .map(|b| TextBlock {
                                 x: b.bbox.0 as f64,
                                 y: b.bbox.1 as f64,
-                                width: (b.bbox.2 - b.bbox.0) as f64,
-                                height: (b.bbox.3 - b.bbox.1) as f64,
+                                width: b.bbox.2 as f64,
+                                height: b.bbox.3 as f64,
                                 text: b.text.clone(),
                                 font_size: b.font_size.unwrap_or(12.0) as f64,
                                 vertical: matches!(b.direction, crate::TextDirection::Vertical),

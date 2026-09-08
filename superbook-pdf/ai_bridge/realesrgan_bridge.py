@@ -202,6 +202,12 @@ def upscale_image(
             half=not fp32,
             device=f"cuda:{gpu_id}" if torch.cuda.is_available() else "cpu",
         )
+        print("=== REAL-ESRGAN DEVICE CHECK ===", file=sys.stderr)
+        print("torch device:", torch.cuda.current_device(), file=sys.stderr)
+        print("torch GPU:", torch.cuda.get_device_name(0), file=sys.stderr)
+        print("upsampler device:", upsampler.device, file=sys.stderr)
+        print("model device:", next(upsampler.model.parameters()).device, file=sys.stderr)
+        print("model dtype:", next(upsampler.model.parameters()).dtype, file=sys.stderr)
     except RuntimeError as e:
         if "CUDA" in str(e) or "GPU" in str(e):
             return {"error": str(e), "exit_code": EXIT_GPU_ERROR}

@@ -33,10 +33,11 @@ struct WebProgressCallback {
     total_steps: AtomicU32,
     step_progress: AtomicUsize,
     step_total: AtomicUsize,
+    broadcaster: Arc<WsBroadcaster>,
 }
 
 impl WebProgressCallback {
-    fn new(job_id: Uuid, queue: JobQueue) -> Self {
+    fn new(job_id: Uuid, queue: JobQueue, broadcaster: Arc<WsBroadcaster>) -> Self {
         Self {
             job_id,
             queue,
@@ -44,6 +45,7 @@ impl WebProgressCallback {
             total_steps: AtomicU32::new(13),
             step_progress: AtomicUsize::new(0),
             step_total: AtomicUsize::new(0),
+            broadcaster,
         }
     }
 }
@@ -58,6 +60,16 @@ impl ProgressCallback for WebProgressCallback {
         let progress = Progress::new(current, total, step);
         self.queue.update(self.job_id, |job| {
             job.update_progress(progress);
+        });
+
+        let broadcaster = self.broadcaster.clone();
+        let job_id = self.job_id;
+        let step = step.to_string();
+
+        tokio::spawn(async move {
+            broadcaster
+                .broadcast_progress(job_id, current, total, &step)
+                .await;
         });
     }
 
@@ -180,7 +192,8 @@ impl JobWorker {
         let pipeline = PdfPipeline::new(config);
 
         // Create progress callback
-        let progress = WebProgressCallback::new(job_id, self.queue.clone());
+        let progress =
+            WebProgressCallback::new(job_id, self.queue.clone(), self.broadcaster.clone());
 
         // Run pipeline in blocking task (pipeline uses rayon internally)
         let queue = self.queue.clone();

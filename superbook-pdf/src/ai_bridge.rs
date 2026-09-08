@@ -544,9 +544,11 @@ impl SubprocessBridge {
     ) -> Result<AiTaskResult> {
         let start_time = std::time::Instant::now();
         let python = self.get_python_path();
+        eprintln!("AI Python: {}", python.display());
 
         // Resolve bridge script path using multi-path fallback
         let bridge_script = resolve_bridge_script(tool, &self.config)?;
+        eprintln!("Bridge script: {}", bridge_script.display());
 
         let mut processed = Vec::new();
         let mut failed = Vec::new();
@@ -597,7 +599,7 @@ impl SubprocessBridge {
 
                 cmd.stdout(Stdio::piped());
                 cmd.stderr(Stdio::piped());
-
+                eprintln!("CMD = {:?}", cmd);
                 match cmd.output() {
                     Ok(output) if output.status.success() => {
                         processed.push(input_file.clone());

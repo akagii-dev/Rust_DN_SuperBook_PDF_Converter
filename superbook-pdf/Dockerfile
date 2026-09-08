@@ -82,7 +82,8 @@ WORKDIR /app
 COPY --from=builder /build/target/release/superbook-pdf /usr/local/bin/
 
 # Copy AI bridge scripts
-COPY ai_bridge/*.py /app/
+RUN mkdir -p /app/ai_bridge
+COPY ai_bridge/*.py /app/ai_bridge/
 
 # Setup Python virtual environment for AI tools
 ENV AI_VENV=/app/ai_venv
